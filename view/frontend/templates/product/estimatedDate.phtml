@@ -1,0 +1,292 @@
+<?php
+/**
+ * @category Mageants EstimatedDeliveryDate
+ * @package Mageants_EstimatedDeliveryDate
+ * @copyright Copyright (c) 2019 Mageants
+ * @author Mageants Team <support@mageants.com>
+ */
+$isEnable = $block->isEnable();
+$product = $block->getCurrentProduct();
+$isDisplayInPage = $block->getDisplayOnFrontPages();
+?>
+<?php if ($isEnable && in_array("product", $isDisplayInPage) && $product->getTypeId() != "configurable"): ?>
+    <div class="estimateddate ">
+        <?php if ($block->getShippingDate($product)): ?>
+            <?php if ($block->getShippingDate($product) != "disabled"): ?>
+                <div class="estimated-shipping-date date message success">
+                    <div class="shipping-date-label">
+                        <span> <?= /* @noEscape */ __("Estimated Shipping Date") ?> </span>
+                    </div>
+                    <div class="shipping-date">
+                        <?= /* @noEscape */ $block->getShippingDate($product); ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        <?php else: ?>
+            <?php if ($block->canShowDefaultShippingText()): ?>
+                <div class="estimated-shipping-date">
+                    <div class="shipping-date-label">
+                        <span> <?= /* @noEscape */ $block->getDefaultShippingText(); ?> </span>
+                    </div>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+        <?php if ($block->getDeliveryDate($product)): ?>
+            <?php if ($block->getDeliveryDate($product) != "disabled"): ?>
+                <div class="estimated-delivery-date date message success">
+                    <span class="delivery-date-label">
+                        <span> <?= /* @noEscape */ __("Order now and get it delivered") ?></span>
+                    </span>
+                    <span class="shipping-date">
+                      <?php
+                         $showingdate = '';
+                         if ($block->getDeliveryDate($product) == $block->showDateMessage()) {
+                            $showingdate = __("Tomorrow");
+                            echo __($showingdate);
+                         }else{
+                            if ($product->getDeliveryDateType() == 'dynamic_date_range' || $product->getDeliveryDateType() == 'static_date_range') {
+                                // $showingdate = __("Between ") . $block->getDeliveryDate($product);
+                                echo __('Between ') . __($block->getDeliveryDate($product));
+                            }elseif ($product->getDeliveryDateType() == 'dynamic_date') {
+                                // $showingdate = __("On ") . $block->getDeliveryDate($product);
+                                echo __('On ') . __($block->getDeliveryDate($product));
+                            }else{
+                                $showingdate = $block->getDeliveryDate($product);
+                                echo /* @noEscape */ __($showingdate);
+                            }
+
+                         }
+                      ?>
+                    </span>
+                </div>
+            <?php endif; ?>
+        <?php else: ?>
+            <?php if ($block->canShowDefaultDeliveryText()): ?>
+                <div class="estimated-delivery-date date">
+                    <div class="delivery-date-label">
+                        <span> <?= /* @noEscape */ $block->getDefaultDeliveryText(); ?> </span>
+                    </div>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+<?php if ($isEnable && in_array("product", $isDisplayInPage) && $product->getTypeId() == "configurable"): ?>
+    <div class="mageants estimateddate">
+
+        <div id="conf_main" class="estimated enabledate">
+            <?php if ($block->getShippingDate($product)): ?>
+                <div class="estimated-shipping-date message success">
+                    <div class="shipping-date-label">
+                        <span> <?= /* @noEscape */ __("Estimated Shipping Date ") ?> </span>
+                    </div>
+                    <div class="shipping-date">
+                        <?= /* @noEscape */ $block->getShippingDate($product);
+                        ?>
+                    </div>
+                </div>
+            <?php else: ?>
+                <?php if ($block->canShowDefaultShippingText()): ?>
+                    <div class="estimated-shipping-date">
+                        <div class="shipping-date-label">
+                        <span> <?= /* @noEscape */ $block->getDefaultShippingText(); ?> </span>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+            <?php if ($block->getDeliveryDate($product)): ?>
+                <div class="estimated-delivery-date date message success">
+                    <span class="delivery-date-label">.
+                        <span> <?= /* @noEscape */ __("Order now and get it delivered ") ?></span>
+                    </span>
+                    <span class="shipping-date">
+                        <?php
+                         $showingdate = '';
+                         if ($block->getDeliveryDate($product) == $block->showDateMessage()) {
+                            $showingdate =__("Tomorrow");
+                            echo __($showingdate);
+                         }else{
+                            if ($product->getDeliveryDateType() == 'dynamic_date_range' || $product->getDeliveryDateType() == 'static_date_range') {
+                                // $showingdate = __("Between ") . $block->getDeliveryDate($product);
+                                echo __('Between ') . __($block->getDeliveryDate($product));
+                            }elseif ($product->getDeliveryDateType() == 'dynamic_date') {
+                                // $showingdate = __("On ") . $block->getDeliveryDate($product);
+                                echo __('On ') . __($block->getDeliveryDate($product));
+                            }else{
+                                $showingdate = $block->getDeliveryDate($product);
+                                echo /* @noEscape */ __($showingdate);
+                            }
+                         }
+                      ?>
+
+                    </span>
+                </div>
+            <?php else: ?>
+                <?php if ($block->canShowDefaultDeliveryText()): ?>
+                    <div class="estimated-delivery-date date">
+                        <div class="delivery-date-label">
+                            <span> <?= /* @noEscape */ $block->getDefaultDeliveryText(); ?> </span>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+        <?php
+            $data = $product->getTypeInstance()->getConfigurableOptions($product);
+            $optionsData = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
+            $superAttrCode=[];
+        foreach ($optionsData as $option) {
+            $superAttrCode[]=$option['attribute_code'];
+        }
+            $usedProducts = $product->getTypeInstance()->getUsedProductCollection($product);
+        foreach ($usedProducts as $childProduct) {
+            $stockProduct = $block->getProductStock($childProduct->getId());
+
+                $simpleProduct = $block->getProduct($childProduct->getId());
+                $id = "";
+            foreach ($superAttrCode as $key => $value) {
+                    $id = $id.$simpleProduct->getData($value);
+            }
+            if ($block->getShippingDate($simpleProduct) || $block->getDeliveryDate($simpleProduct)) {
+                ?>
+                <div id="<?= /* @noEscape */ $id; ?>" class = "estimated disabledate">
+                <?php if ($block->getShippingDate($simpleProduct)): ?>
+                        <div class="estimated-shipping-date date message success">
+                            <div class="shipping-date-label">
+                                <span> <?= /* @noEscape */ __("Estimated Shipping Date ") ?> </span>
+                            </div>
+                            <div class="shipping-date">
+                                <?= /* @noEscape */  $block->getShippingDate($simpleProduct);
+                                ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($block->getDeliveryDate($simpleProduct)): ?>
+                        <div class="estimated-delivery-date date">
+                            <span class="delivery-date-label">
+                                <span> <?= /* @noEscape */ __("Order now and get it delivered ") ?> </span>
+                            </span>
+                            <span class="shipping-date">
+                               <?php
+                                 $showingdate = '';
+                                 if ($block->getDeliveryDate($product) == $block->showDateMessage()) {
+                                    $showingdate = __("Tomorrow");
+                                    echo __($showingdate);
+                                 }else{
+                                    if ($product->getDeliveryDateType() == 'dynamic_date_range' || $product->getDeliveryDateType() == 'static_date_range') {
+                                        $showingdate = __("Between ") . $block->getDeliveryDate($product);
+                                        echo __('Between ') . __($block->getDeliveryDate($product));
+                                    }elseif ($product->getDeliveryDateType() == 'dynamic_date') {
+                                        $showingdate = __("On ") . $block->getDeliveryDate($product);
+                                        echo __('On ') . __($block->getDeliveryDate($product));
+                                    }else{
+                                        $showingdate = $block->getDeliveryDate($product);
+                                        echo /* @noEscape */ __($showingdate);
+                                    }
+                                 }
+                              ?>
+                            </span>
+                        </div>
+                    <?php endif; ?>
+
+                </div>
+                    <?php
+            }
+        }
+        ?>
+    </div>
+<?php endif; ?>
+
+<script>
+    require([
+      'jquery',
+      'jquery/ui'
+    ], function($){
+         $(document).ready(function() {
+           $('.swatch-opt').on('click', '.swatch-option', function () {
+            console.log("click");
+                setTimeout(function(){
+                    OnClick();
+                },100);
+
+            });
+
+            $('.swatch-opt').on('change', '.swatch-select', function () {
+                console.log("change");
+                 setTimeout(function(){
+                    OnClick();
+                },100);
+            });
+        });
+
+        function OnClick ()
+        {
+            var super_attribute = [];
+            $('.swatch-attribute').each(function() { // Breeze fix: jQuery => $
+                var id = $(this).attr('attribute-id');
+                var value = $(this).attr('option-selected');
+                if (value != "")
+                {
+                    super_attribute[id] = value;
+                }
+            });
+            var attr_key = Array();
+            var attr_value = Array();
+            var i = 0;
+            $.each(super_attribute, function( index, value ) {
+                if (value != undefined) {
+                    attr_key[i] = index;
+                    attr_value[i] = value;
+                    i = i + 1;
+                }
+            });
+
+            var final = "";
+            for (var i = attr_value.length - 1; i >= 0 ; i--) {
+                  final = final+attr_value[i];
+            }
+            //console.log(final);
+            var showChild = 0;
+            $('.estimateddate .estimated').each(function() { // Breeze fix: jQuery => $
+                //console.log(jQuery(this).attr('id'));
+                var id = $(this).attr('id');
+                       if (id == final)
+                       {
+                           console.log("YES");
+                           showChild = 1;
+                           $('.estimateddate #conf_main').css("display", "none");
+                           $(this).css("display", "block");
+                       }
+                       else{
+                           $(this).css("display", "none");
+                       }
+            });
+            if (showChild == 0) {
+                $('.estimateddate #conf_main').css("display", "block");
+            }
+        }
+
+    });
+</script>
+<style>
+    .estimateddate .date {
+        color: #0d924a;
+    }
+    .estimated-delivery-date {
+        padding-left: 55px !important;
+        text-align: left;
+    }
+
+    .estimated-delivery-date > .delivery-date-label::before {
+        left: 10px !important;
+    }
+
+    .message.success {
+        margin: 10px 0 10px !important;
+    }
+    @media only screen and (max-width: 767px) {
+        .message.success .delivery-date-label:before {
+            top: 50%;
+        }
+}
+</style>
