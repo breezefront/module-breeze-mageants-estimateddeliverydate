@@ -34,7 +34,7 @@ $isDisplayInPage = $block->getDisplayOnFrontPages();
         <?php if ($block->getDeliveryDate($product)): ?>
             <?php if ($block->getDeliveryDate($product) != "disabled"): ?>
                 <div class="estimated-delivery-date date message success">
-                    <span class="delivery-date-label">
+                <span class="delivery-date-label">
                         <span> <?= /* @noEscape */ __("Order now and get it delivered") ?></span>
                     </span>
                     <span class="shipping-date">
@@ -96,8 +96,8 @@ $isDisplayInPage = $block->getDisplayOnFrontPages();
             <?php endif; ?>
             <?php if ($block->getDeliveryDate($product)): ?>
                 <div class="estimated-delivery-date date message success">
-                    <span class="delivery-date-label">.
-                        <span> <?= /* @noEscape */ __("Order now and get it delivered ") ?></span>
+                    <span class="delivery-date-label">
+                        <span> <?= /* @noEscape */ __("Order now and get it delivered") ?></span>
                     </span>
                     <span class="shipping-date">
                         <?php
@@ -149,7 +149,7 @@ $isDisplayInPage = $block->getDisplayOnFrontPages();
             }
             if ($block->getShippingDate($simpleProduct) || $block->getDeliveryDate($simpleProduct)) {
                 ?>
-                <div id="<?= /* @noEscape */ $id; ?>" class = "estimated disabledate">
+                <div id="<?= /* @noEscape */ $id; ?>" class = "estimated disabledate" data-delivery-product-id="<?= /* @noEscape */ $childProduct->getId(); ?>">
                 <?php if ($block->getShippingDate($simpleProduct)): ?>
                         <div class="estimated-shipping-date date message success">
                             <div class="shipping-date-label">
@@ -162,25 +162,25 @@ $isDisplayInPage = $block->getDisplayOnFrontPages();
                         </div>
                     <?php endif; ?>
                     <?php if ($block->getDeliveryDate($simpleProduct)): ?>
-                        <div class="estimated-delivery-date date">
+                        <div class="estimated-delivery-date date message success <?= $simpleProduct->getId(); ?>">
                             <span class="delivery-date-label">
-                                <span> <?= /* @noEscape */ __("Order now and get it delivered ") ?> </span>
+                                <span> <?= /* @noEscape */ __("Order now and get it delivered") ?> </span>
                             </span>
                             <span class="shipping-date">
                                <?php
                                  $showingdate = '';
-                                 if ($block->getDeliveryDate($product) == $block->showDateMessage()) {
+                                 if ($block->getDeliveryDate($simpleProduct) == $block->showDateMessage()) {
                                     $showingdate = __("Tomorrow");
                                     echo __($showingdate);
                                  }else{
-                                    if ($product->getDeliveryDateType() == 'dynamic_date_range' || $product->getDeliveryDateType() == 'static_date_range') {
-                                        $showingdate = __("Between ") . $block->getDeliveryDate($product);
-                                        echo __('Between ') . __($block->getDeliveryDate($product));
-                                    }elseif ($product->getDeliveryDateType() == 'dynamic_date') {
-                                        $showingdate = __("On ") . $block->getDeliveryDate($product);
-                                        echo __('On ') . __($block->getDeliveryDate($product));
+                                    if ($simpleProduct->getDeliveryDateType() == 'dynamic_date_range' || $simpleProduct->getDeliveryDateType() == 'static_date_range') {
+                                        $showingdate = __("Between ") . $block->getDeliveryDate($simpleProduct);
+                                        echo __('Between ') . __($block->getDeliveryDate($simpleProduct));
+                                    }elseif ($simpleProduct->getDeliveryDateType() == 'dynamic_date') {
+                                        $showingdate = __("On ") . $block->getDeliveryDate($simpleProduct);
+                                        echo __('On ') . __($block->getDeliveryDate($simpleProduct));
                                     }else{
-                                        $showingdate = $block->getDeliveryDate($product);
+                                        $showingdate = $block->getDeliveryDate($simpleProduct);
                                         echo /* @noEscape */ __($showingdate);
                                     }
                                  }
@@ -196,77 +196,12 @@ $isDisplayInPage = $block->getDisplayOnFrontPages();
         ?>
     </div>
 <?php endif; ?>
-
-<script>
-    require([
-      'jquery',
-      'jquery/ui'
-    ], function($){
-         $(document).ready(function() {
-           $('.swatch-opt').on('click', '.swatch-option', function () {
-            console.log("click");
-                setTimeout(function(){
-                    OnClick();
-                },100);
-
-            });
-
-            $('.swatch-opt').on('change', '.swatch-select', function () {
-                console.log("change");
-                 setTimeout(function(){
-                    OnClick();
-                },100);
-            });
-        });
-
-        function OnClick ()
-        {
-            var super_attribute = [];
-            $('.swatch-attribute').each(function() { // Breeze fix: jQuery => $
-                var id = $(this).attr('attribute-id');
-                var value = $(this).attr('option-selected');
-                if (value != "")
-                {
-                    super_attribute[id] = value;
-                }
-            });
-            var attr_key = Array();
-            var attr_value = Array();
-            var i = 0;
-            $.each(super_attribute, function( index, value ) {
-                if (value != undefined) {
-                    attr_key[i] = index;
-                    attr_value[i] = value;
-                    i = i + 1;
-                }
-            });
-
-            var final = "";
-            for (var i = attr_value.length - 1; i >= 0 ; i--) {
-                  final = final+attr_value[i];
-            }
-            //console.log(final);
-            var showChild = 0;
-            $('.estimateddate .estimated').each(function() { // Breeze fix: jQuery => $
-                //console.log(jQuery(this).attr('id'));
-                var id = $(this).attr('id');
-                       if (id == final)
-                       {
-                           console.log("YES");
-                           showChild = 1;
-                           $('.estimateddate #conf_main').css("display", "none");
-                           $(this).css("display", "block");
-                       }
-                       else{
-                           $(this).css("display", "none");
-                       }
-            });
-            if (showChild == 0) {
-                $('.estimateddate #conf_main').css("display", "block");
-            }
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Mageants_EstimatedDeliveryDate/js/swatch-script": {}
         }
-
-    });
+    }
 </script>
 <style>
     .estimateddate .date {
