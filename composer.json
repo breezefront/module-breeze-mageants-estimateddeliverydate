@@ -2,7 +2,7 @@
     "name": "swissup/module-breeze-mageants-estimateddeliverydate",
     "description": "Mageants Estimated Delivery Date integration with Breeze Frontend",
     "type": "magento2-module",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "license": "OSL-3.0",
     "autoload": {
         "files": [
